@@ -1,3 +1,5 @@
+import os
+
 from crystalnet.parsing import parse_predict_args, modify_predict_args
 from crystalnet.train import make_predictions
 
@@ -5,7 +7,11 @@ if __name__ == '__main__':
     args = parse_predict_args()
     test_name, test_prediction = make_predictions(args)
 
-    with open(f'{args.test_path}/seed_{args.seed}/predict_fold8_cgcmpnn.csv', 'w') as fw:
+    output_dir = os.path.join(args.test_path, f'seed_{args.seed}')
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, 'predict_fold8_cgcmpnn.csv')
+
+    with open(output_path, 'w') as fw:
         fw.write(f'name,{args.dataset_name}\n')
 
         for name, prediction in zip(test_name, test_prediction):
