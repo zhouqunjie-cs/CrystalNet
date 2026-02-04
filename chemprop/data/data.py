@@ -37,3 +37,58 @@ class CrystalDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         return self.data[idx]
+
+
+class CrystalBatch:
+    """Batch container that aggregates precomputed crystal graph features."""
+
+    def __init__(self, f_atoms, f_bonds, a2b, b2a, b2revb, a_scope, b_scope):
+        self.f_atoms = f_atoms
+        self.f_bonds = f_bonds
+        self.a2b = a2b
+        self.b2a = b2a
+        self.b2revb = b2revb
+        self.a_scope = a_scope
+        self.b_scope = b_scope
+
+    @classmethod
+    def from_datapoints(cls, datapoints):
+        f_atoms = []
+        f_bonds = []
+        a2b = []
+        b2a = []
+        b2revb = []
+        a_scope = []
+        b_scope = []
+
+        atom_offset = 0
+        bond_offset = 0
+
+        for datapoint in datapoints:
+            n_atoms = datapoint.n_atoms
+            n_bonds = datapoint.n_bonds
+
+            f_atoms.extend(datapoint.f_atoms)
+            f_bonds.extend(datapoint.f_bonds)
+
+            for bonds in datapoint.a2b:
+                a2b.append([bond + bond_offset for bond in bonds])
+
+            b2a.extend([atom + atom_offset for atom in datapoint.b2a])
+            b2revb.extend([bond + bond_offset for bond in datapoint.b2revb])
+
+            a_scope.append((atom_offset, atom_offset + n_atoms))
+            b_scope.append((bond_offset, bond_offset + n_bonds))
+
+            atom_offset += n_atoms
+            bond_offset += n_bonds
+
+        return cls(
+            f_atoms=f_atoms,
+            f_bonds=f_bonds,
+            a2b=a2b,
+            b2a=b2a,
+            b2revb=b2revb,
+            a_scope=a_scope,
+            b_scope=b_scope,
+        )
