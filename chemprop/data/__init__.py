@@ -1,2 +1,2 @@
-from .data import CrystalDatapoint, CrystalDataset
+from .data import CrystalBatch, CrystalDatapoint, CrystalDataset
 from .scaler import StandardScaler
