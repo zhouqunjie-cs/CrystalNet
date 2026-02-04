@@ -2,7 +2,7 @@ from typing import List
 import torch
 import torch.nn as nn
 
-from chemprop.data import CrystalDataset, StandardScaler
+from chemprop.data import CrystalBatch, CrystalDataset, StandardScaler
 
 
 def predict(model: nn.Module,
@@ -27,7 +27,7 @@ def predict(model: nn.Module,
 
     for i in range(0, num_iters, iter_step):
         # Prepare batch
-        crystal_batch = CrystalDataset(data[i:i + batch_size])
+        crystal_batch = CrystalBatch.from_datapoints(data[i:i + batch_size])
 
         with torch.no_grad():
             preds_batch = model(crystal_batch)
@@ -67,7 +67,7 @@ def transfer_predict(model: nn.Module,
 
     for i in range(0, num_iters, iter_step):
         # Prepare batch
-        crystal_batch = CrystalDataset(data[i:i + batch_size])
+        crystal_batch = CrystalBatch.from_datapoints(data[i:i + batch_size])
 
         with torch.no_grad():
             preds_batch = model(crystal_batch)
@@ -82,4 +82,3 @@ def transfer_predict(model: nn.Module,
         preds.extend(preds_batch.tolist())
 
     return preds
-
